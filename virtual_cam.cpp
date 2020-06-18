@@ -83,7 +83,7 @@ HRESULT CVCamStream::GetMediaType(int iPosition, CMediaType* pmt)
 	pvi->bmiHeader.biHeight = 768;
 	pvi->AvgTimePerFrame = 333333;
 	pvi->bmiHeader.biCompression = BI_RGB;
-	pvi->bmiHeader.biBitCount = 32;
+	pvi->bmiHeader.biBitCount = 24;
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
@@ -119,7 +119,7 @@ HRESULT CVCamStream::CheckMediaType(const CMediaType* pMediaType)
 		return E_INVALIDARG;
 	}
 
-	if (*pMediaType->Subtype() != MEDIASUBTYPE_YUY2) {
+	if (*pMediaType->Subtype() != MEDIASUBTYPE_RGB24) {
 		return E_INVALIDARG;
 	}
 
@@ -175,7 +175,7 @@ HRESULT CVCamStream::FillBuffer(IMediaSample* pms)
 
 	for (unsigned i = 0; i < 256; i++) {
 		for (unsigned j = 0; j < 256; j++) {
-			const unsigned idx = (i * 1024 + j) * 4;
+			const unsigned idx = (i * 1024 + j) * 3;
 
 			pData[idx] = i; // r
 			pData[idx + 1] = j; // g
@@ -186,7 +186,7 @@ HRESULT CVCamStream::FillBuffer(IMediaSample* pms)
 		CAutoLock lock(&m_cSharedState);
 
 		CRefTime start = m_rtSampleTime;
-		m_rtSampleTime += 1000l;
+		m_rtSampleTime += 40l;
 
 		pms->SetTime((REFERENCE_TIME*) &start, (REFERENCE_TIME*) &m_rtSampleTime);
 	}
@@ -248,8 +248,8 @@ HRESULT STDMETHODCALLTYPE CVCamStream::GetStreamCaps(int iIndex,
 	pvi->bmiHeader.biWidth = 1024;
 	pvi->bmiHeader.biHeight = 768;
 	pvi->AvgTimePerFrame = 333333;
-	pvi->bmiHeader.biCompression = MAKEFOURCC('Y', 'U', 'Y', '2');
-	pvi->bmiHeader.biBitCount = 16;
+	pvi->bmiHeader.biCompression = BI_RGB;
+	pvi->bmiHeader.biBitCount = 24;
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = pvi->bmiHeader.biWidth *
@@ -260,7 +260,7 @@ HRESULT STDMETHODCALLTYPE CVCamStream::GetStreamCaps(int iIndex,
 	SetRectEmpty(&(pvi->rcTarget));
 
 	(*pmt)->majortype = MEDIATYPE_Video;
-	(*pmt)->subtype = MEDIASUBTYPE_YUY2;
+	(*pmt)->subtype = MEDIASUBTYPE_RGB24;
 	(*pmt)->formattype = FORMAT_VideoInfo;
 	(*pmt)->bTemporalCompression = FALSE;
 	(*pmt)->bFixedSizeSamples = FALSE;
