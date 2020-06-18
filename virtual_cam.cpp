@@ -80,7 +80,7 @@ HRESULT CVCamStream::GetMediaType(int iPosition, CMediaType* pmt)
 	ZeroMemory(pvi, sizeof(VIDEOINFOHEADER));
 
 	pvi->bmiHeader.biWidth = 1024;
-	pvi->bmiHeader.biHeight = 786;
+	pvi->bmiHeader.biHeight = 768;
 	pvi->AvgTimePerFrame = 333333;
 	pvi->bmiHeader.biCompression = BI_RGB;
 	pvi->bmiHeader.biBitCount = 32;
