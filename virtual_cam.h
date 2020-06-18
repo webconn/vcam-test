@@ -1,12 +1,16 @@
 #pragma once
 
+// {f5529866-b085-11ea-b3de-0242ac130004}
+DEFINE_GUID(CLSID_VirtualCam,
+	0xf5529866, 0xb085, 0x11ea, 0xb3, 0xde, 0x02, 0x42, 0xac, 0x13, 0x00, 0x04);
+
 class CVCamStream;
 
 class CVCam : public CSource {
 public:
 	DECLARE_IUNKNOWN;
 
-	CVCam(LPUNKNOWN lpunk, HRESULT* phr, const GUID id, int mode);
+	static CUnknown* WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT* phr);
 
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 	IFilterGraph* GetGraph() { return m_pGraph; }
@@ -14,6 +18,9 @@ public:
 
 protected:
 	CVCamStream* m_stream = nullptr;
+
+private:
+	CVCam(LPUNKNOWN lpunk, HRESULT* phr, const GUID id);
 };
 
 
@@ -21,7 +28,7 @@ class CVCamStream : public CSourceStream,
 					public IAMStreamConfig,
 					public IKsPropertySet {
 public:
-	CVCamStream(HRESULT* phr, CVCam* pParent, LPCWSTR pPinName, int mode);
+	CVCamStream(HRESULT* phr, CVCam* pParent, LPCWSTR pPinName);
 	~CVCamStream();
 
 	// IUnknown

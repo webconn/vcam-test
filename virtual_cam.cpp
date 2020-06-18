@@ -1,19 +1,26 @@
 #include <streams.h>
 #include <olectl.h>
 #include <initguid.h>
+#include <dvdmedia.h>
 
 #include "virtual_cam.h"
 
 #define DECLARE_PTR(type, ptr, expr) type* ptr = (type*)(expr);
 
-CVCam::CVCam(LPUNKNOWN lpunk, HRESULT* phr, const GUID id, int mode)
+CUnknown* WINAPI CVCam::CreateInstance(LPUNKNOWN lpunk, HRESULT* phr)
+{
+	ASSERT(phr);
+	return new CVCam(lpunk, phr, CLSID_VirtualCam);
+}
+
+CVCam::CVCam(LPUNKNOWN lpunk, HRESULT* phr, const GUID id)
 	: CSource(NAME("FunectVirtualCam"), lpunk, id)
 {
 	ASSERT(phr);
 
 	CAutoLock cAutoLock(&m_cStateLock);
 	m_paStreams = (CSourceStream**) new CVCamStream * [1];
-	m_stream = new CVCamStream(phr, this, L"Video", mode);
+	m_stream = new CVCamStream(phr, this, L"Video");
 	m_paStreams[0] = m_stream;
 }
 
@@ -27,7 +34,7 @@ HRESULT CVCam::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 	}
 }
 
-CVCamStream::CVCamStream(HRESULT* phr, CVCam* pParent, LPCWSTR pPinName, int mode)
+CVCamStream::CVCamStream(HRESULT* phr, CVCam* pParent, LPCWSTR pPinName)
 	: CSourceStream(NAME("Video"), phr, pParent, pPinName), m_parent(pParent)
 {}
 
